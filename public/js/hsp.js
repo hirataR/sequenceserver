@@ -337,6 +337,68 @@ export default function HSP(props) {
     return <span className="text-gray-700">{text}</span>;
   }
 
+  const jbrowseLink = () => {
+    if (
+      props.algorithm === "blastn"
+    ) {
+      const jbrowse1Url = 
+        `https://rapdb.dna.naro.go.jp/jbrowse/` + 
+        `?data=data%2Firgsp1` + 
+        `&loc=${props.hit.id}%3A${hsp.sstart}..${hsp.send}` + 
+        `&highlight=${props.hit.id}%3A${hsp.sstart}..${hsp.send}`;
+      return (
+        <a target="_blank" rel="noopener noreferrer" href={jbrowse1Url} className="btn-link text-sm font-normal text-seqblue hover:text-seqorange ml-3 print:hidden">
+          <i className="fa fa-external-link" /> JBrowse1
+        </a>
+      );
+    }
+    return null;
+  }
+
+  const jbrowse2Link = () => {
+    if (
+      props.algorithm === "blastn"
+    ) {
+      const trackId = `blast_hit_${props.hit.id}_${hsp.sstart}`;
+      const customTrack = [
+        {
+          type: "FeatureTrack",
+          trackId: trackId,
+          name: `BLAST Hit: ${props.hit.id}`,
+          assemblyNames: ["genome"],
+          adapter: {
+            type: "FromConfigAdapter",
+            features: [
+              {
+                uniqueId: `${trackId}_f1`,
+                refName: props.hit.id,
+                start: Math.min(hsp.sstart, hsp.send),
+                end: Math.max(hsp.sstart, hsp.send), 
+                type: "match",
+                name: `HSP (Score: ${hsp.score || 'N/A'})`
+              }
+            ]
+          }
+        }
+      ];
+      const jbrowse2Url =
+        `https://rapdb.dna.naro.go.jp/jbrowse2/` +
+        `?config=data/irgsp1.json` +
+        `&assembly=genome` +
+        `&loc=${props.hit.id}:${hsp.sstart}..${hsp.send}` +
+        `&highlight=${props.hit.id}:${hsp.sstart}..${hsp.send}` +
+        `&tracks=${trackId},irgsp1_rep_transcript.sorted.gff` +
+        `&tracklist=true` +
+        `&sessionTracks=${encodeURIComponent(JSON.stringify(customTrack))}`;
+      return (
+        <a target="_blank" rel="noopener noreferrer" href={jbrowse2Url} className="btn-link text-sm font-normal text-seqblue hover:text-seqorange ml-3 print:hidden">
+          <i className="fa fa-external-link" /> JBrowse2
+        </a>
+      );
+    }
+    return null;
+  }
+
   return (
     <div
       className="hsp pt-px pb-5 border-l-2 border-transparent pl-1 -ml-1"
@@ -350,6 +412,8 @@ export default function HSP(props) {
         {hspStats().map((s, i) => (
           <span key={i}>{s}</span>
         ))}
+        {jbrowseLink()} |
+        {jbrowse2Link()}
       </p>
       {hspLines()}
     </div>
