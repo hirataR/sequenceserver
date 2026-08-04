@@ -244,6 +244,75 @@ module SequenceServer
       }
     end
 
+    def rapdb_jbrowse2_with_blast
+      return nil if id.match(RAPDB_ID_PATTERN) or title.match(RAPDB_ID_PATTERN)
+      case ENV['DB']
+      when 'main'
+        url = "/jbrowse2/?config=data%2Firgsp1.json&assembly=genome"
+        gff_track = "irgsp1_rep_transcript.sorted.gff"
+      when 'ModelCrops'
+        url = "/ModelCrops/jbrowse2/?config=data%2Fcf_Rice.json&assembly=Rice"
+        gff_track = "Rice_0"
+      when 'genomedb_rapdb'
+        url = "/genomedb_rapdb/jbrowse2/?config=data%2Fcf_Nipponbare.json&assembly=Nipponbare"
+        gff_track = "Nipponbare_0"
+      when 'genomedb_ms'
+        url = "/genomedb_ms/jbrowse2/?config=data%2Fcf_NPB.json&assembly=NPB"
+        gff_track = "NPB_0"
+      else
+        return nil
+      end
+
+      first_hsp = hsps.first
+      hit_len = (first_hsp.send - first_hsp.sstart).abs
+      view_start = [first_hsp.sstart, first_hsp.send].min - (hit_len * 0.1).to_i
+      view_end   = [first_hsp.sstart, first_hsp.send].max   + (hit_len * 0.1).to_i
+
+      track_id = "blast_hit_#{id}_#{first_hsp.sstart}"
+      custom_track = [
+        {
+          type: "FeatureTrack",
+          trackId: track_id,
+          name: "BLAST Hit: #{id}",
+          assemblyNames: [ENV['DB'] == 'main' ? 'genome' : ENV['DB']],
+          adapter: {
+            type: "FromConfigAdapter",
+            features: [
+              {
+                uniqueId: "#{track_id}_f1",
+                refName: id,
+                start: [first_hsp.sstart, first_hsp.send].min - 1,
+                end: [first_hsp.sstart, first_hsp.send].max,
+                type: "match",
+                name: "HSP##{first_hsp.number}"
+              }
+            ]
+          },
+          displays: [
+            {
+              type: "LinearBasicDisplay",
+              renderer: {
+                type: "SvgFeatureRenderer",
+                color1: "aqua"
+              }
+            }
+          ]
+        }
+      ]
+
+      url = "#{url}" \
+                  "&loc=#{id}:#{view_start}..#{view_end}" \
+                  "&tracks=#{track_id},#{gff_track}" \
+                  "&tracklist=true" \
+                  "&sessionTracks=#{ERB::Util.url_encode(JSON.generate(custom_track))}"
+      {
+        :order => 2,
+        :title => 'JBrowse2 (Best hit)',
+        :url   => url,
+        :icon  => 'fa-external-link'
+      }
+    end
+
     def phytozome_at_jbrowse1
       return nil unless id.match(PHYTOZOME_AT_ID_PATTERN) or title.match(PHYTOZOME_AT_ID_PATTERN)
       url = "../jbrowse/?data=Arabidopsis&loc=#{id}&tracks=DNA%2CArabidopsis"
