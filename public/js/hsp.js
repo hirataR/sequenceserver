@@ -341,11 +341,38 @@ export default function HSP(props) {
     if (
       props.algorithm === "blastn"
     ) {
+      const hitLen = Math.abs(hsp.send - hsp.sstart);
+      const viewStart = Math.min(hsp.sstart, hsp.send) - Math.floor(hitLen * 0.1);
+      const viewEnd = Math.max(hsp.sstart, hsp.send) + Math.floor(hitLen * 0.1);
+      const strand = (hsp.send - hsp.sstart) < 0 ? "-1" : "1";
+
+      const myFeatures = encodeURIComponent(JSON.stringify([
+        {
+          seq_id: props.hit.id,
+          start: Math.min(hsp.sstart, hsp.send) - 1,
+          end: Math.max(hsp.sstart, hsp.send),
+          strand: strand,
+          name: `HSP#${hsp.number}`
+        }
+      ]));
+
+      const myTrack = encodeURIComponent(JSON.stringify([
+        {
+          label: "BLAST",
+          type: "JBrowse/View/Track/CanvasFeatures",
+          store: "url",
+          style: {
+            color: "aqua"
+          }
+        }
+      ]));
+
       const jbrowse1Url = 
         `https://rapdb.dna.naro.go.jp/jbrowse/` + 
         `?data=data%2Firgsp1` + 
-        `&loc=${props.hit.id}%3A${hsp.sstart}..${hsp.send}` + 
-        `&highlight=${props.hit.id}%3A${hsp.sstart}..${hsp.send}`;
+        `&loc=${props.hit.id}%3A${viewStart}..${viewEnd}` + 
+        `&addFeatures=${myFeatures}` + 
+        `&addTracks=${myTrack}`;
       return (
         <a target="_blank" rel="noopener noreferrer" href={jbrowse1Url} className="btn-link text-sm font-normal text-seqblue hover:text-seqorange ml-3 print:hidden">
           <i className="fa fa-external-link" /> JBrowse1
@@ -359,6 +386,9 @@ export default function HSP(props) {
     if (
       props.algorithm === "blastn"
     ) {
+      const hitLen = Math.abs(hsp.send - hsp.sstart);
+      const viewStart = Math.min(hsp.sstart, hsp.send) - Math.floor(hitLen * 0.1);
+      const viewEnd = Math.max(hsp.sstart, hsp.send) + Math.floor(hitLen * 0.1);
       const trackId = `blast_hit_${props.hit.id}_${hsp.sstart}`;
       const customTrack = [
         {
@@ -372,21 +402,30 @@ export default function HSP(props) {
               {
                 uniqueId: `${trackId}_f1`,
                 refName: props.hit.id,
-                start: Math.min(hsp.sstart, hsp.send),
+                start: Math.min(hsp.sstart, hsp.send) - 1,
                 end: Math.max(hsp.sstart, hsp.send), 
                 type: "match",
-                name: `HSP (Score: ${hsp.score || 'N/A'})`
-              }
+                name: `HSP#${hsp.number}`
+              },
             ]
-          }
+          },
+          displays: [
+            {
+              type: "LinearBasicDisplay",
+              renderer: {
+                type: "SvgFeatureRenderer",
+                color1: "aqua"
+              }
+            }
+          ]
         }
       ];
+      
       const jbrowse2Url =
         `https://rapdb.dna.naro.go.jp/jbrowse2/` +
         `?config=data/irgsp1.json` +
         `&assembly=genome` +
-        `&loc=${props.hit.id}:${hsp.sstart}..${hsp.send}` +
-        `&highlight=${props.hit.id}:${hsp.sstart}..${hsp.send}` +
+        `&loc=${props.hit.id}:${viewStart}..${viewEnd}` +
         `&tracks=${trackId},irgsp1_rep_transcript.sorted.gff` +
         `&tracklist=true` +
         `&sessionTracks=${encodeURIComponent(JSON.stringify(customTrack))}`;
