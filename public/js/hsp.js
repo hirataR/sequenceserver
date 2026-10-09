@@ -5,6 +5,73 @@ import _ from "underscore";
 import Utils from "./utils";
 import * as Helpers from "./visualisation_helpers";
 
+const JBrowseDBs = {
+  main: {
+    path: "",
+    assembly: "genome",
+    jbrowse1Data: "data%2Firgsp1",
+    jbrowse2Config: "data%2Firgsp1.json",
+    tracks: ["irgsp1_rep_transcript.sorted.gff"]
+  },
+  ModelCrops: {
+    path: "/ModelCrops",
+    assemblies: {
+      OsNPB: { assembly: "Rice", tracks: ["Rice_0", "Rice_1", "Rice_2", "Rice_3"] },
+      Ta: { assembly: "Wheat", tracks: ["Wheat"] },
+      Hv: { assembly: "Barley", tracks: ["Barley"] },
+      Zm: { assembly: "Corn", tracks: ["Corn"] },
+      At: { assembly: "Arabidopsis", tracks: ["Arabidopsis"] },
+      GmWm82: { assembly: "Soybean", tracks: ["Soybean"] },
+      CqJ100: { assembly: "Cquinoa", tracks: ["Cquinoa"] },
+      Vm: { assembly: "VignaMarina", tracks: ["VignaMarina"] }
+    }
+  },
+  genomedb_rapdb: {
+    path: "/genomedb_rapdb",
+    assemblies: {
+      OsNPB: { assembly: "Nipponbare", tracks: ["Nipponbare_0", "Nipponbare_1", "Nipponbare_2", "Nipponbare_3"] },
+      OsKSH: { assembly: "Koshihikari", tracks: ["Koshihikari_0", "Koshihikari_1", "Koshihikari_2"] },
+      OsTKN: { assembly: "Takanari", tracks: ["Takanari_0", "Takanari_1", "Takanari_2"] },
+      OsH193: { assembly: "Hokuriku_193", tracks: ["Hokuriku_193_0", "Hokuriku_193_1", "Hokuriku_193_2"] }
+    }
+  },
+  genomedb_ms: {
+    path: "/genomedb_ms",
+    assemblies: {
+      OsNPB: { assembly: "NPB", tracks: ["NPB_0", "NPB_1", "NPB_2", "NPB_3"] },
+      OsKP: { assembly: "KP", tracks: ["KP_0", "KP_1", "KP_2"] },
+      OsKSL: { assembly: "Kasalath", tracks: ["Kasalath_0", "Kasalath_1", "Kasalath_2"] },
+      OrIRGC104814: { assembly: "IRGC104814", tracks: ["IRGC104814_0", "IRGC104814_1", "IRGC104814_2"] },
+      OrJP223922: { assembly: "JP223922", tracks: ["JP223922_0", "JP223922_1", "JP223922_2"] },
+      OrJP226069: { assembly: "JP226069", tracks: ["JP226069_0", "JP226069_1", "JP226069_2"] },
+      OsIR64: { assembly: "IR64", tracks: ["IR64_0", "IR64_1", "IR64_2"] },
+      ObIRGC101243: { assembly: "IRGC101243", tracks: ["IRGC101243_0", "IRGC101243_1", "IRGC101243_2"] },
+      OmIRGC104086: { assembly: "IRGC104086", tracks: ["IRGC104086_0", "IRGC104086_1", "IRGC104086_2"] }
+    }
+  }
+};
+
+const MODEL_CROPS_ID_PREFIXES = ["GmWm82", "CqJ100", "OsNPB", "Ta", "Hv", "Zm", "At", "Vm"];
+
+const getInstanceGroup = () => {
+  const path = window.location.pathname;
+  if (path.includes("/ModelCrops/")) return "ModelCrops";
+  if (path.includes("/genomedb_rapdb/")) return "genomedb_rapdb";
+  if (path.includes("/genomedb_ms/")) return "genomedb_ms";
+  return "main";
+};
+
+const getGenomedbAssembly = (instanceGroup, id) => {
+  if (instanceGroup === "main") return JBrowseDBs.main;
+
+  const { assemblies } = JBrowseDBs[instanceGroup];
+  const hitId = String(id);
+  const prefix = instanceGroup === "ModelCrops"
+    ? MODEL_CROPS_ID_PREFIXES.find((item) => hitId.startsWith(item)) || "OsNPB"
+    : hitId.split("_")[0];
+  return assemblies[prefix];
+};
+
 /**
  * Alignment viewer.
  */
@@ -367,11 +434,17 @@ export default function HSP(props) {
         }
       ]));
 
-      const jbrowse1Url = 
-        `https://rapdb.dna.naro.go.jp/jbrowse/` + 
-        `?data=data%2Firgsp1` + 
-        `&loc=${props.hit.id}%3A${viewStart}..${viewEnd}` + 
-        `&addFeatures=${myFeatures}` + 
+      const instanceGroup = getInstanceGroup();
+      const db = JBrowseDBs[instanceGroup];
+      const assembly = getGenomedbAssembly(instanceGroup, props.hit.id);
+      if (!assembly) return null;
+      const baseUrl = instanceGroup === "main"
+        ? `${db.path}/jbrowse/?data=${db.jbrowse1Data}`
+        : `${db.path}/jbrowse/?data=${assembly.assembly}&tracks=DNA%2C${assembly.tracks.join("%2C")}`;
+      const jbrowse1Url =
+        `${baseUrl}` +
+        `&loc=${props.hit.id}%3A${viewStart}..${viewEnd}` +
+        `&addFeatures=${myFeatures}` +
         `&addTracks=${myTrack}`;
       return (
         <a target="_blank" rel="noopener noreferrer" href={jbrowse1Url} className="btn-link text-sm font-normal text-seqblue hover:text-seqorange ml-3 print:hidden">
@@ -389,13 +462,17 @@ export default function HSP(props) {
       const hitLen = Math.abs(hsp.send - hsp.sstart);
       const viewStart = Math.min(hsp.sstart, hsp.send) - Math.floor(hitLen * 0.1);
       const viewEnd = Math.max(hsp.sstart, hsp.send) + Math.floor(hitLen * 0.1);
+      const instanceGroup = getInstanceGroup();
+      const db = JBrowseDBs[instanceGroup];
+      const assembly = getGenomedbAssembly(instanceGroup, props.hit.id);
+      if (!assembly) return null;
       const trackId = `blast_hit_${props.hit.id}_${hsp.sstart}`;
       const customTrack = [
         {
           type: "FeatureTrack",
           trackId: trackId,
           name: `BLAST Hit: ${props.hit.id}`,
-          assemblyNames: ["genome"],
+          assemblyNames: [assembly.assembly],
           adapter: {
             type: "FromConfigAdapter",
             features: [
@@ -420,13 +497,14 @@ export default function HSP(props) {
           ]
         }
       ];
-      
+
+      const baseUrl = instanceGroup === "main"
+        ? `${db.path}/jbrowse2/?config=${db.jbrowse2Config}&assembly=${assembly.assembly}`
+        : `${db.path}/jbrowse2/?config=data%2Fcf_${assembly.assembly}.json&assembly=${assembly.assembly}`;
       const jbrowse2Url =
-        `https://rapdb.dna.naro.go.jp/jbrowse2/` +
-        `?config=data/irgsp1.json` +
-        `&assembly=genome` +
+        `${baseUrl}` +
         `&loc=${props.hit.id}:${viewStart}..${viewEnd}` +
-        `&tracks=${trackId},irgsp1_rep_transcript.sorted.gff` +
+        `&tracks=${trackId},${assembly.tracks[0]}` +
         `&tracklist=true` +
         `&sessionTracks=${encodeURIComponent(JSON.stringify(customTrack))}`;
       return (
