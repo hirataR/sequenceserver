@@ -21,6 +21,38 @@ module SequenceServer
     VIGNA_ID_PATTERN = /(^Vigma.+)/
     RAPDB_CHR_ID_PATTERN = /^(chr\d{2}|Mt|Pt|Syng_\d{3}|AP\d{6}\.\d+|AC\d{6}\.\d+)$/
 
+    GENOMEDB_ASSEMBLIES = {
+      'ModelCrops' => {
+        'OsNPB'  => { assembly: 'Rice',        tracks: %w[Rice_0 Rice_1 Rice_2 Rice_3] },
+        'Ta'     => { assembly: 'Wheat',       tracks: %w[Wheat] },
+        'Hv'     => { assembly: 'Barley',      tracks: %w[Barley] },
+        'Zm'     => { assembly: 'Corn',        tracks: %w[Corn] },
+        'At'     => { assembly: 'Arabidopsis', tracks: %w[Arabidopsis] },
+        'GmWm82' => { assembly: 'Soybean',     tracks: %w[Soybean] },
+        'CqJ100' => { assembly: 'Cquinoa',     tracks: %w[Cquinoa] },
+        'Vm'     => { assembly: 'VignaMarina', tracks: %w[VignaMarina] }
+      },
+      'genomedb_rapdb' => {
+        'OsNPB'  => { assembly: 'Nipponbare',   tracks: %w[Nipponbare_0 Nipponbare_1 Nipponbare_2 Nipponbare_3] },
+        'OsKSH'  => { assembly: 'Koshihikari',  tracks: %w[Koshihikari_0 Koshihikari_1 Koshihikari_2] },
+        'OsTKN'  => { assembly: 'Takanari',     tracks: %w[Takanari_0 Takanari_1 Takanari_2] },
+        'OsH193' => { assembly: 'Hokuriku_193', tracks: %w[Hokuriku_193_0 Hokuriku_193_1 Hokuriku_193_2] }
+      },
+      'genomedb_ms' => {
+        'OsNPB'        => { assembly: 'NPB',          tracks: %w[NPB_0 NPB_1 NPB_2 NPB_3] },
+        'OsKP'         => { assembly: 'KP',           tracks: %w[KP_0 KP_1 KP_2] },
+        'OsKSL'        => { assembly: 'Kasalath',     tracks: %w[Kasalath_0 Kasalath_1 Kasalath_2] },
+        'OrIRGC104814' => { assembly: 'IRGC104814',   tracks: %w[IRGC104814_0 IRGC104814_1 IRGC104814_2] },
+        'OrJP223922'   => { assembly: 'JP223922',     tracks: %w[JP223922_0 JP223922_1 JP223922_2] },
+        'OrJP226069'   => { assembly: 'JP226069',     tracks: %w[JP226069_0 JP226069_1 JP226069_2] },
+        'OsIR64'       => { assembly: 'IR64',         tracks: %w[IR64_0 IR64_1 IR64_2] },
+        'ObIRGC101243' => { assembly: 'IRGC101243',   tracks: %w[IRGC101243_0 IRGC101243_1 IRGC101243_2] },
+        'OmIRGC104086' => { assembly: 'IRGC104086',   tracks: %w[IRGC104086_0 IRGC104086_1 IRGC104086_2] }
+      }
+    }.freeze
+
+    MODEL_CROPS_ID_PREFIXES = %w[GmWm82 CqJ100 OsNPB Ta Hv Zm At Vm].freeze
+
     # Link generators are methods that return a Hash as defined below.
     #
     # {
@@ -128,15 +160,13 @@ module SequenceServer
 
     def rapdb_jbrowse1
       return nil unless id.match(RAPDB_ID_PATTERN) or title.match(RAPDB_ID_PATTERN)
-      case ENV['DB']
+      case instance_group
       when 'main'
         url = "/jbrowse/?data=data%2Firgsp1&loc=#{id}"
-      when 'ModelCrops'
-        url = "/ModelCrops/jbrowse/?data=Rice&loc=#{id}&tracks=DNA%2CRice_0%2CRice_1%2CRice_2"
-      when 'genomedb_rapdb'
-        url = "/genomedb_rapdb/jbrowse/?data=Nipponbare&loc=#{id}&tracks=DNA%2CNipponbare_0%2CNipponbare_1%2CNipponbare_2"
-      when 'genomedb_ms'
-        url = "/genomedb_ms/jbrowse/?data=NPB&loc=#{id}&tracks=DNA%2CNPB_0%2CNPB_1%2CNPB_2"
+      when 'ModelCrops', 'genomedb_rapdb', 'genomedb_ms'
+        assembly = genomedb_assembly
+        return nil unless assembly
+        url = "/#{instance_group}/jbrowse/?data=#{assembly[:assembly]}&loc=#{id}&tracks=DNA%2C#{assembly[:tracks].join('%2C')}"
       else
         return nil
       end
@@ -150,15 +180,14 @@ module SequenceServer
 
     def rapdb_jbrowse2
       return nil unless id.match(RAPDB_ID_PATTERN) or title.match(RAPDB_ID_PATTERN)
-      case ENV['DB']
+      case instance_group
       when 'main'
         url = "/jbrowse2/?config=data%2Firgsp1.json&loc=#{id}&assembly=genome&tracks=genome-ReferenceSequenceTrack%2Cirgsp1_rep_transcript.sorted.gff%2Cirgsp1_prediction_transcript.sorted.gff&tracklist=true"
-      when 'ModelCrops'
-        url = "/ModelCrops/jbrowse2/?config=data%2Fcf_Rice.json&loc=#{id}&assembly=Rice&tracks=Rice-ReferenceSequenceTrack%2CRice_0%2CRice_1%2CRice_2&tracklist=true"
-      when 'genomedb_rapdb'
-        url = "/genomedb_rapdb/jbrowse2/?config=data%2Fcf_Nipponbare.json&loc=#{id}&assembly=Nipponbare&tracks=Nipponbare-ReferenceSequenceTrack%2CNipponbare_0%2CNipponbare_1%2CNipponbare_2&tracklist=true"
-      when 'genomedb_ms'
-        url = "/genomedb_ms/jbrowse2/?config=data%2Fcf_NPB.json&loc=#{id}&assembly=NPB&tracks=NPB-ReferenceSequenceTrack%2CNPB_0%2CNPB_1%2CNPB_2&tracklist=true"
+      when 'ModelCrops', 'genomedb_rapdb', 'genomedb_ms'
+        assembly = genomedb_assembly
+        return nil unless assembly
+        a = assembly[:assembly]
+        url = "/#{instance_group}/jbrowse2/?config=data%2Fcf_#{a}.json&loc=#{id}&assembly=#{a}&tracks=#{a}-ReferenceSequenceTrack%2C#{assembly[:tracks].join('%2C')}&tracklist=true"
       else
         return nil
       end
@@ -185,15 +214,13 @@ module SequenceServer
 
     def rapdb_jbrowse1_with_blast
       return nil if id.match(RAPDB_ID_PATTERN) or title.match(RAPDB_ID_PATTERN)
-      case ENV['DB']
+      case instance_group
       when 'main'
         url = "/jbrowse/?data=data%2Firgsp1"
-      when 'ModelCrops'
-        url = "/ModelCrops/jbrowse/?data=Rice&tracks=DNA%2CRice_0%2CRice_1%2CRice_2"
-      when 'genomedb_rapdb'
-        url = "/genomedb_rapdb/jbrowse/?data=Nipponbare&tracks=DNA%2CNipponbare_0%2CNipponbare_1%2CNipponbare_2"
-      when 'genomedb_ms'
-        url = "/genomedb_ms/jbrowse/?data=NPB&tracks=DNA%2CNPB_0%2CNPB_1%2CNPB_2"
+      when 'ModelCrops', 'genomedb_rapdb', 'genomedb_ms'
+        assembly = genomedb_assembly
+        return nil unless assembly
+        url = "/#{instance_group}/jbrowse/?data=#{assembly[:assembly]}&tracks=DNA%2C#{assembly[:tracks].join('%2C')}"
       else
         return nil
       end
@@ -246,19 +273,18 @@ module SequenceServer
 
     def rapdb_jbrowse2_with_blast
       return nil if id.match(RAPDB_ID_PATTERN) or title.match(RAPDB_ID_PATTERN)
-      case ENV['DB']
+      assembly_name = instance_group == 'main' ? 'genome' : instance_group
+      case instance_group
       when 'main'
         url = "/jbrowse2/?config=data%2Firgsp1.json&assembly=genome"
         gff_track = "irgsp1_rep_transcript.sorted.gff"
-      when 'ModelCrops'
-        url = "/ModelCrops/jbrowse2/?config=data%2Fcf_Rice.json&assembly=Rice"
-        gff_track = "Rice_0"
-      when 'genomedb_rapdb'
-        url = "/genomedb_rapdb/jbrowse2/?config=data%2Fcf_Nipponbare.json&assembly=Nipponbare"
-        gff_track = "Nipponbare_0"
-      when 'genomedb_ms'
-        url = "/genomedb_ms/jbrowse2/?config=data%2Fcf_NPB.json&assembly=NPB"
-        gff_track = "NPB_0"
+      when 'ModelCrops', 'genomedb_rapdb', 'genomedb_ms'
+        assembly = genomedb_assembly
+        return nil unless assembly
+        a = assembly[:assembly]
+        url = "/#{instance_group}/jbrowse2/?config=data%2Fcf_#{a}.json&assembly=#{a}"
+        gff_track = assembly[:tracks].first
+        assembly_name = a
       else
         return nil
       end
@@ -274,7 +300,7 @@ module SequenceServer
           type: "FeatureTrack",
           trackId: track_id,
           name: "BLAST Hit: #{id}",
-          assemblyNames: [ENV['DB'] == 'main' ? 'genome' : ENV['DB']],
+          assemblyNames: [assembly_name],
           adapter: {
             type: "FromConfigAdapter",
             features: [
@@ -556,6 +582,33 @@ module SequenceServer
         url:   url,
         icon:  'fa-external-link'
       }
+    end
+
+    private
+
+    def instance_group
+      @instance_group ||= begin
+        db_dir = SequenceServer.config[:database_dir].to_s
+        case db_dir
+        when /ModelCrops/     then 'ModelCrops'
+        when /genomedb_rapdb/ then 'genomedb_rapdb'
+        when /genomedb_ms/    then 'genomedb_ms'
+        else 'main'
+        end
+      end
+    end
+
+    def genomedb_assembly
+      assemblies = GENOMEDB_ASSEMBLIES[instance_group]
+      return nil unless assemblies
+
+      case instance_group
+      when 'ModelCrops'
+        prefix = MODEL_CROPS_ID_PREFIXES.find { |p| id.to_s.start_with?(p) } || 'OsNPB'
+        assemblies[prefix]
+      else
+        assemblies[id.to_s.split('_').first]
+      end
     end
   end
 end
