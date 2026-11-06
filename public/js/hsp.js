@@ -5,6 +5,162 @@ import _ from "underscore";
 import Utils from "./utils";
 import * as Helpers from "./visualisation_helpers";
 
+const JBrowseDBs = {
+  path: "/fruiteagdb",
+  instances: [
+    {
+      name: "FujiDelicious",
+      idPatterns: [/FujiDel\d{2}g\d+\.t\d+/],
+      chrPatterns: [/^FujiDel_Chr\d+$/],
+      tracks: ["FujiDelicious"],
+      jbrowse2: true
+    },
+    {
+      name: "FujiRalls",
+      idPatterns: [/FujiRal\d{2}g\d+\.t\d+/],
+      chrPatterns: [/^FujiRal_Chr\d+$/],
+      tracks: ["FujiRalls"],
+      jbrowse2: true
+    },
+    {
+      name: "GoldenDelicious",
+      idPatterns: [/MD\d{2}G\d{7}\.v1\.1\.491/],
+      chrPatterns: [/^MdGDDH_Chr\d+$/],
+      tracks: ["GoldenDelicious"],
+      jbrowse2: true
+    },
+    {
+      name: "PeachAkatsuki",
+      idPatterns: [/Prupe\.aktk\.\d{2}G\d{6}\.01/],
+      chrPatterns: [/^PpAkt_Chr\d+$/],
+      tracks: ["PeachAkatsuki"],
+      jbrowse2: true
+    },
+    {
+      name: "PeachLovell",
+      idPatterns: [/Prupe\.\dG\d{6}\.1\.v2\.1/],
+      chrPatterns: [/^PpLov_Pp\d+$/],
+      tracks: ["PeachLovell"],
+      jbrowse2: true
+    },
+    {
+      name: "PearAkizuki",
+      idPatterns: [/Akizuki\.\d{2}G\d{6}\.01/],
+      chrPatterns: [/^PpAkz_Chr\d+$/],
+      tracks: ["PearAkizuki"],
+      jbrowse2: true
+    },
+    {
+      name: "UnshiuKishu",
+      idPatterns: [/CUN\dKi\d{6}\.t1/],
+      chrPatterns: [/^CUNphKi_ch\d+$/],
+      tracks: ["UnshiuKishu"],
+      jbrowse2: true
+    },
+    {
+      name: "UnshiuKunenbo",
+      idPatterns: [/CUN\dKu\d{6}\.t1/],
+      chrPatterns: [/^CUNphKu_ch\d+$/],
+      tracks: ["UnshiuKunenbo"],
+      jbrowse2: true
+    },
+    {
+      name: "Clementina",
+      idPatterns: [/Ciclev\d{8}m\.v1\.0/],
+      chrPatterns: [/^Ccle_scaffold_\d+$/],
+      tracks: ["Clementina"],
+      jbrowse2: true
+    },
+    {
+      name: "ShineMuscat",
+      idPatterns: [/VSMuph2\.0_chr\d{2}\.g\d{4}\.i?1/],
+      chrPatterns: [/^VSM_chr\d+$/],
+      tracks: ["ShineMuscat"],
+      jbrowse2: true
+    },
+    {
+      name: "TeaSeimei",
+      idPatterns: [/CsSME\d{2}G\d{6}\.t1/],
+      chrPatterns: [/^CsSME_Chr\d+$/],
+      tracks: ["TeaSeimei"],
+      jbrowse2: true
+    },
+    {
+      name: "TeaShuchazao",
+      idPatterns: [/(CSS\d{7}\.\d)/],
+      chrPatterns: [/^CsSCZ_Chr\d+$/],
+      tracks: ["TeaShuchazao"],
+      jbrowse2: true,
+      capture: true
+    },
+    {
+      name: "Rice",
+      idPatterns: [/Os\d{2}t\d{7}-\d{2}/],
+      chrPatterns: [/^OsNPB_chr\d+$/],
+      tracks: ["Rice_0", "Rice_1", "Rice_2"],
+      jbrowse2: true
+    },
+    {
+      name: "Soybean",
+      idPatterns: [/Glyma.+\.Wm82\.a6\.v1$/],
+      chrPatterns: [/^GmWm82_Gm\d+$/],
+      tracks: ["Soybean"],
+      jbrowse2: true
+    },
+    {
+      name: "Barley",
+      idPatterns: [/HORVU.+\.V3$/],
+      chrPatterns: [],
+      tracks: ["Barley"],
+      jbrowse2: false
+    },
+    {
+      name: "Wheat",
+      idPatterns: [/Traes.+\.v2\.1$/],
+      chrPatterns: [],
+      tracks: ["Wheat"],
+      jbrowse2: false
+    },
+    {
+      name: "Tomato",
+      idPatterns: [/Solyc........./],
+      chrPatterns: [],
+      tracks: ["Tomato"],
+      jbrowse2: false
+    },
+    {
+      name: "Onion",
+      idPatterns: [/^g\d*\.t\d/],
+      chrPatterns: [],
+      tracks: ["Onion"],
+      jbrowse2: false
+    },
+    {
+      name: "Arabidopsis",
+      idPatterns: [/AT.+/],
+      chrPatterns: [/^At_Chr\d+$/],
+      tracks: ["Arabidopsis"],
+      jbrowse2: true
+    }
+  ]
+};
+
+const getFruiteagdbInstance = (id) => {
+  const hitId = String(id);
+
+  const find = (patternsOf) => {
+    for (const db of JBrowseDBs.instances) {
+      for (const pattern of patternsOf(db)) {
+        const match = hitId.match(pattern);
+        if (match) return { db, seqId: db.capture ? match[1] : hitId };
+      }
+    }
+    return null;
+  };
+
+  return find((db) => db.chrPatterns) || find((db) => db.idPatterns);
+};
+
 /**
  * Alignment viewer.
  */
@@ -337,6 +493,117 @@ export default function HSP(props) {
     return <span className="text-gray-700">{text}</span>;
   }
 
+  const jbrowseLink = () => {
+    if (
+      props.algorithm === "blastn"
+    ) {
+      const hitLen = Math.abs(hsp.send - hsp.sstart);
+      const viewStart = Math.min(hsp.sstart, hsp.send) - Math.floor(hitLen * 0.1);
+      const viewEnd = Math.max(hsp.sstart, hsp.send) + Math.floor(hitLen * 0.1);
+      const strand = (hsp.send - hsp.sstart) < 0 ? "-1" : "1";
+
+      const instance = getFruiteagdbInstance(props.hit.id);
+      if (!instance) return null;
+      const { db, seqId } = instance;
+
+      const myFeatures = encodeURIComponent(JSON.stringify([
+        {
+          seq_id: seqId,
+          start: Math.min(hsp.sstart, hsp.send) - 1,
+          end: Math.max(hsp.sstart, hsp.send),
+          strand: strand,
+          name: `HSP#${hsp.number}`
+        }
+      ]));
+
+      const myTrack = encodeURIComponent(JSON.stringify([
+        {
+          label: "BLAST",
+          type: "JBrowse/View/Track/CanvasFeatures",
+          store: "url",
+          style: {
+            color: "aqua"
+          }
+        }
+      ]));
+
+      const jbrowse1Url =
+        `${JBrowseDBs.path}/jbrowse/?data=${db.name}` +
+        `&loc=${seqId}%3A${viewStart}..${viewEnd}` +
+        `&tracks=DNA%2C${db.tracks.join("%2C")}` +
+        `&addFeatures=${myFeatures}` +
+        `&addTracks=${myTrack}`;
+      return (
+        <a target="_blank" rel="noopener noreferrer" href={jbrowse1Url} className="btn-link text-sm font-normal text-seqblue hover:text-seqorange ml-3 print:hidden">
+          <i className="fa fa-external-link" /> JBrowse1
+        </a>
+      );
+    }
+    return null;
+  }
+
+  const jbrowse2Link = () => {
+    if (
+      props.algorithm === "blastn"
+    ) {
+      const hitLen = Math.abs(hsp.send - hsp.sstart);
+      const viewStart = Math.min(hsp.sstart, hsp.send) - Math.floor(hitLen * 0.1);
+      const viewEnd = Math.max(hsp.sstart, hsp.send) + Math.floor(hitLen * 0.1);
+      const instance = getFruiteagdbInstance(props.hit.id);
+      if (!instance || !instance.db.jbrowse2) return null;
+      const { db, seqId } = instance;
+      const trackId = `blast_hit_${seqId}_${hsp.number}`;
+      const customTrack = [
+        {
+          type: "FeatureTrack",
+          trackId: trackId,
+          name: `BLAST Hit: ${seqId}`,
+          assemblyNames: [db.name],
+          adapter: {
+            type: "FromConfigAdapter",
+            features: [
+              {
+                uniqueId: `${trackId}_f1`,
+                refName: seqId,
+                start: Math.min(hsp.sstart, hsp.send) - 1,
+                end: Math.max(hsp.sstart, hsp.send), 
+                type: "match",
+                name: `HSP#${hsp.number}`
+              },
+            ]
+          },
+          displays: [
+            {
+              type: "LinearBasicDisplay",
+              renderer: {
+                type: "SvgFeatureRenderer",
+                color1: "aqua"
+              }
+            }
+          ]
+        }
+      ];
+
+      const refTrack = `${db.name}-ReferenceSequenceTrack`;
+      const jbrowse2Url =
+        `${JBrowseDBs.path}/jbrowse2/?config=data%2Fcf_${db.name}.json` +
+        `&assembly=${db.name}` +
+        `&loc=${seqId}:${viewStart}..${viewEnd}` +
+        `&tracks=${trackId},${refTrack},${db.tracks.join(",")}` +
+        `&tracklist=true` +
+        `&sessionTracks=${encodeURIComponent(JSON.stringify(customTrack))}`;
+      return (
+        <a target="_blank" rel="noopener noreferrer" href={jbrowse2Url} className="btn-link text-sm font-normal text-seqblue hover:text-seqorange ml-3 print:hidden">
+          <i className="fa fa-external-link" /> JBrowse2
+        </a>
+      );
+    }
+    return null;
+  }
+
+  const jbrowse1 = jbrowseLink();
+  const jbrowse2 = jbrowse2Link();
+
   return (
     <div
       className="hsp pt-px pb-5 border-l-2 border-transparent pl-1 -ml-1"
@@ -350,6 +617,9 @@ export default function HSP(props) {
         {hspStats().map((s, i) => (
           <span key={i}>{s}</span>
         ))}
+        {jbrowse1}
+        {jbrowse1 && jbrowse2 ? " | " : null}
+        {jbrowse2}
       </p>
       {hspLines()}
     </div>
