@@ -10,134 +10,90 @@ const JBrowseDBs = {
   instances: [
     {
       name: "FujiDelicious",
-      idPatterns: [/FujiDel\d{2}g\d+\.t\d+/],
       chrPatterns: [/^FujiDel_Chr\d+$/],
       tracks: ["FujiDelicious"],
       jbrowse2: true
     },
     {
       name: "FujiRalls",
-      idPatterns: [/FujiRal\d{2}g\d+\.t\d+/],
       chrPatterns: [/^FujiRal_Chr\d+$/],
       tracks: ["FujiRalls"],
       jbrowse2: true
     },
     {
       name: "GoldenDelicious",
-      idPatterns: [/MD\d{2}G\d{7}\.v1\.1\.491/],
       chrPatterns: [/^MdGDDH_Chr\d+$/],
       tracks: ["GoldenDelicious"],
       jbrowse2: true
     },
     {
       name: "PeachAkatsuki",
-      idPatterns: [/Prupe\.aktk\.\d{2}G\d{6}\.01/],
       chrPatterns: [/^PpAkt_Chr\d+$/],
       tracks: ["PeachAkatsuki"],
       jbrowse2: true
     },
     {
       name: "PeachLovell",
-      idPatterns: [/Prupe\.\dG\d{6}\.1\.v2\.1/],
       chrPatterns: [/^PpLov_Pp\d+$/],
       tracks: ["PeachLovell"],
       jbrowse2: true
     },
     {
       name: "PearAkizuki",
-      idPatterns: [/Akizuki\.\d{2}G\d{6}\.01/],
       chrPatterns: [/^PpAkz_Chr\d+$/],
       tracks: ["PearAkizuki"],
       jbrowse2: true
     },
     {
       name: "UnshiuKishu",
-      idPatterns: [/CUN\dKi\d{6}\.t1/],
       chrPatterns: [/^CUNphKi_ch\d+$/],
       tracks: ["UnshiuKishu"],
       jbrowse2: true
     },
     {
       name: "UnshiuKunenbo",
-      idPatterns: [/CUN\dKu\d{6}\.t1/],
       chrPatterns: [/^CUNphKu_ch\d+$/],
       tracks: ["UnshiuKunenbo"],
       jbrowse2: true
     },
     {
       name: "Clementina",
-      idPatterns: [/Ciclev\d{8}m\.v1\.0/],
       chrPatterns: [/^Ccle_scaffold_\d+$/],
       tracks: ["Clementina"],
       jbrowse2: true
     },
     {
       name: "ShineMuscat",
-      idPatterns: [/VSMuph2\.0_chr\d{2}\.g\d{4}\.i?1/],
       chrPatterns: [/^VSM_chr\d+$/],
       tracks: ["ShineMuscat"],
       jbrowse2: true
     },
     {
       name: "TeaSeimei",
-      idPatterns: [/CsSME\d{2}G\d{6}\.t1/],
       chrPatterns: [/^CsSME_Chr\d+$/],
       tracks: ["TeaSeimei"],
       jbrowse2: true
     },
     {
       name: "TeaShuchazao",
-      idPatterns: [/(CSS\d{7}\.\d)/],
       chrPatterns: [/^CsSCZ_Chr\d+$/],
       tracks: ["TeaShuchazao"],
-      jbrowse2: true,
-      capture: true
+      jbrowse2: true
     },
     {
       name: "Rice",
-      idPatterns: [/Os\d{2}t\d{7}-\d{2}/],
       chrPatterns: [/^OsNPB_chr\d+$/],
       tracks: ["Rice_0", "Rice_1", "Rice_2"],
       jbrowse2: true
     },
     {
       name: "Soybean",
-      idPatterns: [/Glyma.+\.Wm82\.a6\.v1$/],
       chrPatterns: [/^GmWm82_Gm\d+$/],
       tracks: ["Soybean"],
       jbrowse2: true
     },
     {
-      name: "Barley",
-      idPatterns: [/HORVU.+\.V3$/],
-      chrPatterns: [],
-      tracks: ["Barley"],
-      jbrowse2: false
-    },
-    {
-      name: "Wheat",
-      idPatterns: [/Traes.+\.v2\.1$/],
-      chrPatterns: [],
-      tracks: ["Wheat"],
-      jbrowse2: false
-    },
-    {
-      name: "Tomato",
-      idPatterns: [/Solyc........./],
-      chrPatterns: [],
-      tracks: ["Tomato"],
-      jbrowse2: false
-    },
-    {
-      name: "Onion",
-      idPatterns: [/^g\d*\.t\d/],
-      chrPatterns: [],
-      tracks: ["Onion"],
-      jbrowse2: false
-    },
-    {
       name: "Arabidopsis",
-      idPatterns: [/AT.+/],
       chrPatterns: [/^At_Chr\d+$/],
       tracks: ["Arabidopsis"],
       jbrowse2: true
@@ -148,17 +104,13 @@ const JBrowseDBs = {
 const getFruiteagdbInstance = (id) => {
   const hitId = String(id);
 
-  const find = (patternsOf) => {
-    for (const db of JBrowseDBs.instances) {
-      for (const pattern of patternsOf(db)) {
-        const match = hitId.match(pattern);
-        if (match) return { db, seqId: db.capture ? match[1] : hitId };
-      }
+  for (const db of JBrowseDBs.instances) {
+    for (const pattern of db.chrPatterns) {
+      if (hitId.match(pattern)) return { db, seqId: hitId };
     }
-    return null;
-  };
+  }
 
-  return find((db) => db.chrPatterns) || find((db) => db.idPatterns);
+  return null;
 };
 
 /**
