@@ -482,7 +482,7 @@ export default function HSP(props) {
       const jbrowse1Url =
         `${JBrowseDBs.path}/jbrowse/?data=${db.name}` +
         `&loc=${seqId}%3A${viewStart}..${viewEnd}` +
-        `&tracks=DNA%2C${db.tracks.join("%2C")}` +
+        `&tracks=DNA%2CBLAST%2C${db.tracks.join("%2C")}` +
         `&addFeatures=${myFeatures}` +
         `&addTracks=${myTrack}`;
       return (
