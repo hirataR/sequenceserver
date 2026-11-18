@@ -11,42 +11,43 @@ const JBrowseDBs = {
     assembly: "genome",
     jbrowse1Data: "data%2Firgsp1",
     jbrowse2Config: "data%2Firgsp1.json",
-    tracks: ["irgsp1_rep_transcript.sorted.gff"]
+    tracks: ["irgsp1_rep_transcript.sorted.gff"],
+    chrPatterns: [/^(chr\d{2}|Mt|Pt|Syng_\d{3}|AP\d{6}\.\d+|AC\d{6}\.\d+)$/]
   },
   ModelCrops: {
     path: "/ModelCrops",
     assemblies: {
-      OsNPB: { assembly: "Rice", tracks: ["Rice_0", "Rice_1", "Rice_2", "Rice_3"] },
-      Ta: { assembly: "Wheat", tracks: ["Wheat"] },
-      Hv: { assembly: "Barley", tracks: ["Barley"] },
-      Zm: { assembly: "Corn", tracks: ["Corn"] },
-      At: { assembly: "Arabidopsis", tracks: ["Arabidopsis"] },
-      GmWm82: { assembly: "Soybean", tracks: ["Soybean"] },
-      CqJ100: { assembly: "Cquinoa", tracks: ["Cquinoa"] },
-      Vm: { assembly: "VignaMarina", tracks: ["VignaMarina"] }
+      OsNPB: { assembly: "Rice", tracks: ["Rice_0", "Rice_1", "Rice_2", "Rice_3"], chrPatterns: [/^OsNPB_/] },
+      Ta: { assembly: "Wheat", tracks: ["Wheat"], chrPatterns: [/^TaCS_/] },
+      Hv: { assembly: "Barley", tracks: ["Barley"], chrPatterns: [/^HvMrx_/] },
+      Zm: { assembly: "Corn", tracks: ["Corn"], chrPatterns: [/^ZmB73_/] },
+      At: { assembly: "Arabidopsis", tracks: ["Arabidopsis"], chrPatterns: [/^At_/] },
+      GmWm82: { assembly: "Soybean", tracks: ["Soybean"], chrPatterns: [/^GmWm82_/] },
+      CqJ100: { assembly: "Cquinoa", tracks: ["Cquinoa"], chrPatterns: [/^CqJ100_/] },
+      Vm: { assembly: "VignaMarina", tracks: ["VignaMarina"], chrPatterns: [/^Vm_/] }
     }
   },
   genomedb_rapdb: {
     path: "/genomedb_rapdb",
     assemblies: {
-      OsNPB: { assembly: "Nipponbare", tracks: ["Nipponbare_0", "Nipponbare_1", "Nipponbare_2", "Nipponbare_3"] },
-      OsKSH: { assembly: "Koshihikari", tracks: ["Koshihikari_0", "Koshihikari_1", "Koshihikari_2"] },
-      OsTKN: { assembly: "Takanari", tracks: ["Takanari_0", "Takanari_1", "Takanari_2"] },
-      OsH193: { assembly: "Hokuriku_193", tracks: ["Hokuriku_193_0", "Hokuriku_193_1", "Hokuriku_193_2"] }
+      OsNPB: { assembly: "Nipponbare", tracks: ["Nipponbare_0", "Nipponbare_1", "Nipponbare_2", "Nipponbare_3"], chrPatterns: [/^OsNPB_/] },
+      OsKSH: { assembly: "Koshihikari", tracks: ["Koshihikari_0", "Koshihikari_1", "Koshihikari_2"], chrPatterns: [/^OsKSH_/] },
+      OsTKN: { assembly: "Takanari", tracks: ["Takanari_0", "Takanari_1", "Takanari_2"], chrPatterns: [/^OsTKN_/] },
+      OsH193: { assembly: "Hokuriku_193", tracks: ["Hokuriku_193_0", "Hokuriku_193_1", "Hokuriku_193_2"], chrPatterns: [/^OsH193_/] }
     }
   },
   genomedb_ms: {
     path: "/genomedb_ms",
     assemblies: {
-      OsNPB: { assembly: "NPB", tracks: ["NPB_0", "NPB_1", "NPB_2", "NPB_3"] },
-      OsKP: { assembly: "KP", tracks: ["KP_0", "KP_1", "KP_2"] },
-      OsKSL: { assembly: "Kasalath", tracks: ["Kasalath_0", "Kasalath_1", "Kasalath_2"] },
-      OrIRGC104814: { assembly: "IRGC104814", tracks: ["IRGC104814_0", "IRGC104814_1", "IRGC104814_2"] },
-      OrJP223922: { assembly: "JP223922", tracks: ["JP223922_0", "JP223922_1", "JP223922_2"] },
-      OrJP226069: { assembly: "JP226069", tracks: ["JP226069_0", "JP226069_1", "JP226069_2"] },
-      OsIR64: { assembly: "IR64", tracks: ["IR64_0", "IR64_1", "IR64_2"] },
-      ObIRGC101243: { assembly: "IRGC101243", tracks: ["IRGC101243_0", "IRGC101243_1", "IRGC101243_2"] },
-      OmIRGC104086: { assembly: "IRGC104086", tracks: ["IRGC104086_0", "IRGC104086_1", "IRGC104086_2"] }
+      OsNPB: { assembly: "NPB", tracks: ["NPB_0", "NPB_1", "NPB_2", "NPB_3"], chrPatterns: [/^OsNPB_\d+$/] },
+      OsKP: { assembly: "KP", tracks: ["KP_0", "KP_1", "KP_2"], chrPatterns: [/^OsKP_/] },
+      OsKSL: { assembly: "Kasalath", tracks: ["Kasalath_0", "Kasalath_1", "Kasalath_2"], chrPatterns: [/^OsKSL_/] },
+      OrIRGC104814: { assembly: "IRGC104814", tracks: ["IRGC104814_0", "IRGC104814_1", "IRGC104814_2"], chrPatterns: [/^OrIRGC104814_/] },
+      OrJP223922: { assembly: "JP223922", tracks: ["JP223922_0", "JP223922_1", "JP223922_2"], chrPatterns: [/^OrJP223922_/] },
+      OrJP226069: { assembly: "JP226069", tracks: ["JP226069_0", "JP226069_1", "JP226069_2"], chrPatterns: [/^OrJP226069_/] },
+      OsIR64: { assembly: "IR64", tracks: ["IR64_0", "IR64_1", "IR64_2"], chrPatterns: [/^OsIR64_/] },
+      ObIRGC101243: { assembly: "IRGC101243", tracks: ["IRGC101243_0", "IRGC101243_1", "IRGC101243_2"], chrPatterns: [/^ObIRGC101243_/] },
+      OmIRGC104086: { assembly: "IRGC104086", tracks: ["IRGC104086_0", "IRGC104086_1", "IRGC104086_2"], chrPatterns: [/^OmIRGC104086_/] }
     }
   }
 };
@@ -62,14 +63,23 @@ const getInstanceGroup = () => {
 };
 
 const getGenomedbAssembly = (instanceGroup, id) => {
-  if (instanceGroup === "main") return JBrowseDBs.main;
+  const hitId = String(id);
+
+  if (instanceGroup === "main") {
+    const main = JBrowseDBs.main;
+    return main.chrPatterns.some((pattern) => hitId.match(pattern)) ? main : null;
+  }
 
   const { assemblies } = JBrowseDBs[instanceGroup];
-  const hitId = String(id);
   const prefix = instanceGroup === "ModelCrops"
-    ? MODEL_CROPS_ID_PREFIXES.find((item) => hitId.startsWith(item)) || "OsNPB"
+    ? MODEL_CROPS_ID_PREFIXES.find((item) => hitId.startsWith(item))
     : hitId.split("_")[0];
-  return assemblies[prefix];
+  const assembly = prefix && assemblies[prefix];
+  if (!assembly) return null;
+
+  return assembly.chrPatterns.some((pattern) => hitId.match(pattern))
+    ? assembly
+    : null;
 };
 
 /**
@@ -440,7 +450,7 @@ export default function HSP(props) {
       if (!assembly) return null;
       const baseUrl = instanceGroup === "main"
         ? `${db.path}/jbrowse/?data=${db.jbrowse1Data}`
-        : `${db.path}/jbrowse/?data=${assembly.assembly}&tracks=DNA%2C${assembly.tracks.join("%2C")}`;
+        : `${db.path}/jbrowse/?data=${assembly.assembly}&tracks=DNA%2CBLAST%2C${assembly.tracks.join("%2C")}`;
       const jbrowse1Url =
         `${baseUrl}` +
         `&loc=${props.hit.id}%3A${viewStart}..${viewEnd}` +
@@ -516,6 +526,9 @@ export default function HSP(props) {
     return null;
   }
 
+  const jbrowse1 = jbrowseLink();
+  const jbrowse2 = jbrowse2Link();
+
   return (
     <div
       className="hsp pt-px pb-5 border-l-2 border-transparent pl-1 -ml-1"
@@ -529,8 +542,9 @@ export default function HSP(props) {
         {hspStats().map((s, i) => (
           <span key={i}>{s}</span>
         ))}
-        {jbrowseLink()} |
-        {jbrowse2Link()}
+        {jbrowse1}
+        {jbrowse1 && jbrowse2 ? " | " : null}
+        {jbrowse2}
       </p>
       {hspLines()}
     </div>
