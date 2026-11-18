@@ -21,6 +21,8 @@ module SequenceServer
     VIGNA_ID_PATTERN = /(^Vigma.+)/
     RAPDB_CHR_ID_PATTERN = /^(chr\d{2}|Mt|Pt|Syng_\d{3}|AP\d{6}\.\d+|AC\d{6}\.\d+)$/
 
+    RAPDB_GENE_ID_PATTERN = /^Os\d{2}t\d{7}-\d{2}[A-Z]?\d*$/
+
     GENOMEDB_ASSEMBLIES = {
       'ModelCrops' => {
         'OsNPB'  => { assembly: 'Rice',        tracks: %w[Rice_0 Rice_1 Rice_2 Rice_3], chr_patterns: [/^OsNPB_/] },
@@ -33,21 +35,21 @@ module SequenceServer
         'Vm'     => { assembly: 'VignaMarina', tracks: %w[VignaMarina], chr_patterns: [/^Vm_/] }
       },
       'genomedb_rapdb' => {
-        'OsNPB'  => { assembly: 'Nipponbare',   tracks: %w[Nipponbare_0 Nipponbare_1 Nipponbare_2 Nipponbare_3], chr_patterns: [/^OsNPB_/] },
-        'OsKSH'  => { assembly: 'Koshihikari',  tracks: %w[Koshihikari_0 Koshihikari_1 Koshihikari_2], chr_patterns: [/^OsKSH_/] },
-        'OsTKN'  => { assembly: 'Takanari',     tracks: %w[Takanari_0 Takanari_1 Takanari_2], chr_patterns: [/^OsTKN_/] },
-        'OsH193' => { assembly: 'Hokuriku_193', tracks: %w[Hokuriku_193_0 Hokuriku_193_1 Hokuriku_193_2], chr_patterns: [/^OsH193_/] }
+        'OsNPB'  => { assembly: 'Nipponbare',   tracks: %w[Nipponbare_0 Nipponbare_1 Nipponbare_2 Nipponbare_3], chr_patterns: [/^OsNPB_/], gene_patterns: [RAPDB_GENE_ID_PATTERN] },
+        'OsKSH'  => { assembly: 'Koshihikari',  tracks: %w[Koshihikari_0 Koshihikari_1 Koshihikari_2], chr_patterns: [/^OsKSH_/], gene_patterns: [/^OsKSH\.\d{2}G\d{7}(?:\.t\d+)?/] },
+        'OsTKN'  => { assembly: 'Takanari',     tracks: %w[Takanari_0 Takanari_1 Takanari_2], chr_patterns: [/^OsTKN_/], gene_patterns: [/^OsTKN\.\d{2}G\d{7}(?:\.t\d+)?/] },
+        'OsH193' => { assembly: 'Hokuriku_193', tracks: %w[Hokuriku_193_0 Hokuriku_193_1 Hokuriku_193_2], chr_patterns: [/^OsH193_/], gene_patterns: [/^OsH193\.\d{2}G\d{7}(?:\.t\d+)?/] }
       },
       'genomedb_ms' => {
-        'OsNPB'        => { assembly: 'NPB',          tracks: %w[NPB_0 NPB_1 NPB_2 NPB_3], chr_patterns: [/^OsNPB_\d+$/] },
-        'OsKP'         => { assembly: 'KP',           tracks: %w[KP_0 KP_1 KP_2], chr_patterns: [/^OsKP_/] },
-        'OsKSL'        => { assembly: 'Kasalath',     tracks: %w[Kasalath_0 Kasalath_1 Kasalath_2], chr_patterns: [/^OsKSL_/] },
-        'OrIRGC104814' => { assembly: 'IRGC104814',   tracks: %w[IRGC104814_0 IRGC104814_1 IRGC104814_2], chr_patterns: [/^OrIRGC104814_/] },
-        'OrJP223922'   => { assembly: 'JP223922',     tracks: %w[JP223922_0 JP223922_1 JP223922_2], chr_patterns: [/^OrJP223922_/] },
-        'OrJP226069'   => { assembly: 'JP226069',     tracks: %w[JP226069_0 JP226069_1 JP226069_2], chr_patterns: [/^OrJP226069_/] },
-        'OsIR64'       => { assembly: 'IR64',         tracks: %w[IR64_0 IR64_1 IR64_2], chr_patterns: [/^OsIR64_/] },
-        'ObIRGC101243' => { assembly: 'IRGC101243',   tracks: %w[IRGC101243_0 IRGC101243_1 IRGC101243_2], chr_patterns: [/^ObIRGC101243_/] },
-        'OmIRGC104086' => { assembly: 'IRGC104086',   tracks: %w[IRGC104086_0 IRGC104086_1 IRGC104086_2], chr_patterns: [/^OmIRGC104086_/] }
+        'OsNPB'        => { assembly: 'NPB',          tracks: %w[NPB_0 NPB_1 NPB_2 NPB_3], chr_patterns: [/^OsNPB_\d+$/], gene_patterns: [RAPDB_GENE_ID_PATTERN] },
+        'OsKP'         => { assembly: 'KP',           tracks: %w[KP_0 KP_1 KP_2], chr_patterns: [/^OsKP_/], gene_patterns: [/^OsKP\.\d{2}G\d{7}(?:\.t\d+)?/] },
+        'OsKSL'        => { assembly: 'Kasalath',     tracks: %w[Kasalath_0 Kasalath_1 Kasalath_2], chr_patterns: [/^OsKSL_/], gene_patterns: [/^OsKSL\.\d{2}G\d{7}(?:\.t\d+)?/] },
+        'OrIRGC104814' => { assembly: 'IRGC104814',   tracks: %w[IRGC104814_0 IRGC104814_1 IRGC104814_2], chr_patterns: [/^OrIRGC104814_/], gene_patterns: [/^OrIRGC104814\.\d{2}G\d{7}(?:\.t\d+)?/] },
+        'OrJP223922'   => { assembly: 'JP223922',     tracks: %w[JP223922_0 JP223922_1 JP223922_2], chr_patterns: [/^OrJP223922_/], gene_patterns: [/^OrJP223922\.\d{2}G\d{7}(?:\.t\d+)?/] },
+        'OrJP226069'   => { assembly: 'JP226069',     tracks: %w[JP226069_0 JP226069_1 JP226069_2], chr_patterns: [/^OrJP226069_/], gene_patterns: [/^OrJP226069\.\d{2}G\d{7}(?:\.t\d+)?/] },
+        'OsIR64'       => { assembly: 'IR64',         tracks: %w[IR64_0 IR64_1 IR64_2], chr_patterns: [/^OsIR64_/], gene_patterns: [/^OsIR64\.\d{2}G\d{7}(?:\.t\d+)?/] },
+        'ObIRGC101243' => { assembly: 'IRGC101243',   tracks: %w[IRGC101243_0 IRGC101243_1 IRGC101243_2], chr_patterns: [/^ObIRGC101243_/], gene_patterns: [/^ObIRGC101243\.\d{2}G\d{7}(?:\.t\d+)?/] },
+        'OmIRGC104086' => { assembly: 'IRGC104086',   tracks: %w[IRGC104086_0 IRGC104086_1 IRGC104086_2], chr_patterns: [/^OmIRGC104086_/], gene_patterns: [/^OmIRGC104086\.\d{2}G\d{7}(?:\.t\d+)?/] }
       }
     }.freeze
 
@@ -339,6 +341,32 @@ module SequenceServer
       }
     end
 
+    def genomedb_gene_jbrowse1
+      assembly = genomedb_gene_assembly
+      return nil unless assembly
+      url = "/#{instance_group}/jbrowse/?data=#{assembly[:assembly]}&loc=#{id}&tracks=DNA%2C#{assembly[:tracks].join('%2C')}"
+      {
+        order: 2,
+        title: 'JBrowse1',
+        url:   url,
+        icon:  'fa-external-link'
+      }
+    end
+
+    # JBrowse2 counterpart of genomedb_gene_jbrowse1.
+    def genomedb_gene_jbrowse2
+      assembly = genomedb_gene_assembly
+      return nil unless assembly
+      a = assembly[:assembly]
+      url = "/#{instance_group}/jbrowse2/?config=data%2Fcf_#{a}.json&loc=#{id}&assembly=#{a}&tracks=#{a}-ReferenceSequenceTrack%2C#{assembly[:tracks].join('%2C')}&tracklist=true"
+      {
+        order: 2,
+        title: 'JBrowse2',
+        url:   url,
+        icon:  'fa-external-link'
+      }
+    end
+
     def phytozome_at_jbrowse1
       return nil unless id.match(PHYTOZOME_AT_ID_PATTERN) or title.match(PHYTOZOME_AT_ID_PATTERN)
       url = "../jbrowse/?data=Arabidopsis&loc=#{id}&tracks=DNA%2CArabidopsis"
@@ -621,6 +649,17 @@ module SequenceServer
       assembly = genomedb_assembly
       return nil unless assembly
       genome_sequence?(assembly) ? assembly : nil
+    end
+
+    def genomedb_gene_assembly
+      assemblies = GENOMEDB_ASSEMBLIES[instance_group]
+      return nil unless assemblies
+      assemblies.each_value do |assembly|
+        patterns = assembly[:gene_patterns]
+        next unless patterns
+        return assembly if patterns.any? { |pattern| id.to_s.match(pattern) }
+      end
+      nil
     end
   end
 end
