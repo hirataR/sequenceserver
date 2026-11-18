@@ -23,31 +23,31 @@ module SequenceServer
 
     GENOMEDB_ASSEMBLIES = {
       'ModelCrops' => {
-        'OsNPB'  => { assembly: 'Rice',        tracks: %w[Rice_0 Rice_1 Rice_2 Rice_3] },
-        'Ta'     => { assembly: 'Wheat',       tracks: %w[Wheat] },
-        'Hv'     => { assembly: 'Barley',      tracks: %w[Barley] },
-        'Zm'     => { assembly: 'Corn',        tracks: %w[Corn] },
-        'At'     => { assembly: 'Arabidopsis', tracks: %w[Arabidopsis] },
-        'GmWm82' => { assembly: 'Soybean',     tracks: %w[Soybean] },
-        'CqJ100' => { assembly: 'Cquinoa',     tracks: %w[Cquinoa] },
-        'Vm'     => { assembly: 'VignaMarina', tracks: %w[VignaMarina] }
+        'OsNPB'  => { assembly: 'Rice',        tracks: %w[Rice_0 Rice_1 Rice_2 Rice_3], chr_patterns: [/^OsNPB_/] },
+        'Ta'     => { assembly: 'Wheat',       tracks: %w[Wheat],       chr_patterns: [/^TaCS_/] },
+        'Hv'     => { assembly: 'Barley',      tracks: %w[Barley],      chr_patterns: [/^HvMrx_/] },
+        'Zm'     => { assembly: 'Corn',        tracks: %w[Corn],        chr_patterns: [/^ZmB73_/] },
+        'At'     => { assembly: 'Arabidopsis', tracks: %w[Arabidopsis], chr_patterns: [/^At_/] },
+        'GmWm82' => { assembly: 'Soybean',     tracks: %w[Soybean],     chr_patterns: [/^GmWm82_/] },
+        'CqJ100' => { assembly: 'Cquinoa',     tracks: %w[Cquinoa],     chr_patterns: [/^CqJ100_/] },
+        'Vm'     => { assembly: 'VignaMarina', tracks: %w[VignaMarina], chr_patterns: [/^Vm_/] }
       },
       'genomedb_rapdb' => {
-        'OsNPB'  => { assembly: 'Nipponbare',   tracks: %w[Nipponbare_0 Nipponbare_1 Nipponbare_2 Nipponbare_3] },
-        'OsKSH'  => { assembly: 'Koshihikari',  tracks: %w[Koshihikari_0 Koshihikari_1 Koshihikari_2] },
-        'OsTKN'  => { assembly: 'Takanari',     tracks: %w[Takanari_0 Takanari_1 Takanari_2] },
-        'OsH193' => { assembly: 'Hokuriku_193', tracks: %w[Hokuriku_193_0 Hokuriku_193_1 Hokuriku_193_2] }
+        'OsNPB'  => { assembly: 'Nipponbare',   tracks: %w[Nipponbare_0 Nipponbare_1 Nipponbare_2 Nipponbare_3], chr_patterns: [/^OsNPB_/] },
+        'OsKSH'  => { assembly: 'Koshihikari',  tracks: %w[Koshihikari_0 Koshihikari_1 Koshihikari_2], chr_patterns: [/^OsKSH_/] },
+        'OsTKN'  => { assembly: 'Takanari',     tracks: %w[Takanari_0 Takanari_1 Takanari_2], chr_patterns: [/^OsTKN_/] },
+        'OsH193' => { assembly: 'Hokuriku_193', tracks: %w[Hokuriku_193_0 Hokuriku_193_1 Hokuriku_193_2], chr_patterns: [/^OsH193_/] }
       },
       'genomedb_ms' => {
-        'OsNPB'        => { assembly: 'NPB',          tracks: %w[NPB_0 NPB_1 NPB_2 NPB_3] },
-        'OsKP'         => { assembly: 'KP',           tracks: %w[KP_0 KP_1 KP_2] },
-        'OsKSL'        => { assembly: 'Kasalath',     tracks: %w[Kasalath_0 Kasalath_1 Kasalath_2] },
-        'OrIRGC104814' => { assembly: 'IRGC104814',   tracks: %w[IRGC104814_0 IRGC104814_1 IRGC104814_2] },
-        'OrJP223922'   => { assembly: 'JP223922',     tracks: %w[JP223922_0 JP223922_1 JP223922_2] },
-        'OrJP226069'   => { assembly: 'JP226069',     tracks: %w[JP226069_0 JP226069_1 JP226069_2] },
-        'OsIR64'       => { assembly: 'IR64',         tracks: %w[IR64_0 IR64_1 IR64_2] },
-        'ObIRGC101243' => { assembly: 'IRGC101243',   tracks: %w[IRGC101243_0 IRGC101243_1 IRGC101243_2] },
-        'OmIRGC104086' => { assembly: 'IRGC104086',   tracks: %w[IRGC104086_0 IRGC104086_1 IRGC104086_2] }
+        'OsNPB'        => { assembly: 'NPB',          tracks: %w[NPB_0 NPB_1 NPB_2 NPB_3], chr_patterns: [/^OsNPB_\d+$/] },
+        'OsKP'         => { assembly: 'KP',           tracks: %w[KP_0 KP_1 KP_2], chr_patterns: [/^OsKP_/] },
+        'OsKSL'        => { assembly: 'Kasalath',     tracks: %w[Kasalath_0 Kasalath_1 Kasalath_2], chr_patterns: [/^OsKSL_/] },
+        'OrIRGC104814' => { assembly: 'IRGC104814',   tracks: %w[IRGC104814_0 IRGC104814_1 IRGC104814_2], chr_patterns: [/^OrIRGC104814_/] },
+        'OrJP223922'   => { assembly: 'JP223922',     tracks: %w[JP223922_0 JP223922_1 JP223922_2], chr_patterns: [/^OrJP223922_/] },
+        'OrJP226069'   => { assembly: 'JP226069',     tracks: %w[JP226069_0 JP226069_1 JP226069_2], chr_patterns: [/^OrJP226069_/] },
+        'OsIR64'       => { assembly: 'IR64',         tracks: %w[IR64_0 IR64_1 IR64_2], chr_patterns: [/^OsIR64_/] },
+        'ObIRGC101243' => { assembly: 'IRGC101243',   tracks: %w[IRGC101243_0 IRGC101243_1 IRGC101243_2], chr_patterns: [/^ObIRGC101243_/] },
+        'OmIRGC104086' => { assembly: 'IRGC104086',   tracks: %w[IRGC104086_0 IRGC104086_1 IRGC104086_2], chr_patterns: [/^OmIRGC104086_/] }
       }
     }.freeze
 
@@ -213,14 +213,14 @@ module SequenceServer
     end
 
     def rapdb_jbrowse1_with_blast
-      return nil if id.match(RAPDB_ID_PATTERN) or title.match(RAPDB_ID_PATTERN)
       case instance_group
       when 'main'
+        return nil unless genome_sequence?
         url = "/jbrowse/?data=data%2Firgsp1"
       when 'ModelCrops', 'genomedb_rapdb', 'genomedb_ms'
-        assembly = genomedb_assembly
+        assembly = genome_assembly
         return nil unless assembly
-        url = "/#{instance_group}/jbrowse/?data=#{assembly[:assembly]}&tracks=DNA%2C#{assembly[:tracks].join('%2C')}"
+        url = "/#{instance_group}/jbrowse/?data=#{assembly[:assembly]}&tracks=DNA%2CBLAST%2C#{assembly[:tracks].join('%2C')}"
       else
         return nil
       end
@@ -272,14 +272,14 @@ module SequenceServer
     end
 
     def rapdb_jbrowse2_with_blast
-      return nil if id.match(RAPDB_ID_PATTERN) or title.match(RAPDB_ID_PATTERN)
       assembly_name = instance_group == 'main' ? 'genome' : instance_group
       case instance_group
       when 'main'
+        return nil unless genome_sequence?
         url = "/jbrowse2/?config=data%2Firgsp1.json&assembly=genome"
         gff_track = "irgsp1_rep_transcript.sorted.gff"
       when 'ModelCrops', 'genomedb_rapdb', 'genomedb_ms'
-        assembly = genomedb_assembly
+        assembly = genome_assembly
         return nil unless assembly
         a = assembly[:assembly]
         url = "/#{instance_group}/jbrowse2/?config=data%2Fcf_#{a}.json&assembly=#{a}"
@@ -609,6 +609,18 @@ module SequenceServer
       else
         assemblies[id.to_s.split('_').first]
       end
+    end
+
+    def genome_sequence?(assembly = nil)
+      patterns = assembly ? assembly[:chr_patterns] : [RAPDB_CHR_ID_PATTERN]
+      return false unless patterns
+      patterns.any? { |pattern| id.to_s.match(pattern) }
+    end
+
+    def genome_assembly
+      assembly = genomedb_assembly
+      return nil unless assembly
+      genome_sequence?(assembly) ? assembly : nil
     end
   end
 end
