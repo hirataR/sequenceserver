@@ -5,6 +5,73 @@ import _ from "underscore";
 import Utils from "./utils";
 import * as Helpers from "./visualisation_helpers";
 
+const JBrowseDBs = {
+  instances: [
+    {
+      name: "C_unshiu",
+      chrPatterns: [/^C_unshiu_\d+$/],
+      data: "data%2Fjson%2FC_unshiu",
+      tracks: ["MEGANTE", "Cicle_mRNA_by_GMAP", "PASA", "Spaln_SwissProt", "Spaln_TrEMBL", "repeat_region", "repeat_unit"],
+      jbrowse1: true
+    },
+    {
+      name: "P_trifoliata",
+      chrPatterns: [/^P_trifoliata_\d+$/],
+      data: "data%2Fjson%2FP_trifoliata",
+      tracks: ["MEGANTE", "Cicle_mRNA_by_GMAP", "PASA", "Spaln_SwissProt", "Spaln_TrEMBL", "repeat_region", "repeat_unit"],
+      jbrowse1: true
+    },
+    {
+      name: "CUNphKi_r2.0",
+      chrPatterns: [/^CUNphKi_r2\.0ch\d+$/],
+      tracks: ["CUNphKi_r2.0.all.wAnnot", "CUNphKi_r2.0.primaryTranscript"],
+      jbrowse2: true
+    },
+    {
+      name: "CUNphKu_r2.0",
+      chrPatterns: [/^CUNphKu_r2\.0ch\d+$/],
+      tracks: ["CUNphKu_r2.0.all.wAnnot", "CUNphKu_r2.0.primaryTranscript"],
+      jbrowse2: true
+    },
+    {
+      name: "CKIhap1_r2.0",
+      chrPatterns: [/^CKIhap1_r2\.0ch\d+$/],
+      tracks: ["CKIhap1_r2.0.all.wAnnot", "CKIhap1_r2.0.primaryTranscript"],
+      jbrowse2: true
+    },
+    {
+      name: "CKIhap2_r2.0",
+      chrPatterns: [/^CKIhap2_r2\.0ch\d+$/],
+      tracks: ["CKIhap2_r2.0.all.wAnnot", "CKIhap2_r2.0.primaryTranscript"],
+      jbrowse2: true
+    },
+    {
+      name: "CKUhap1_r2.0",
+      chrPatterns: [/^CKUhap1_r2\.0ch\d+$/],
+      tracks: ["CKUhap1_r2.0.all.wAnnot", "CKUhap1_r2.0.primaryTranscript"],
+      jbrowse2: true
+    },
+    {
+      name: "CKUhap2_r2.0",
+      chrPatterns: [/^CKUhap2_r2\.0ch\d+$/],
+      tracks: ["CKUhap2_r2.0.all.wAnnot", "CKUhap2_r2.0.primaryTranscript"],
+      jbrowse2: true
+    }
+  ]
+};
+
+const getJBrowseInstance = (id) => {
+  const hitId = String(id);
+
+  for (const db of JBrowseDBs.instances) {
+    for (const pattern of db.chrPatterns) {
+      if (hitId.match(pattern)) return { db, seqId: hitId };
+    }
+  }
+
+  return null;
+};
+
 /**
  * Alignment viewer.
  */
@@ -337,6 +404,117 @@ export default function HSP(props) {
     return <span className="text-gray-700">{text}</span>;
   }
 
+  const jbrowseLink = () => {
+    if (
+      props.algorithm === "blastn"
+    ) {
+      const hitLen = Math.abs(hsp.send - hsp.sstart);
+      const viewStart = Math.min(hsp.sstart, hsp.send) - Math.floor(hitLen * 0.1);
+      const viewEnd = Math.max(hsp.sstart, hsp.send) + Math.floor(hitLen * 0.1);
+      const strand = (hsp.send - hsp.sstart) < 0 ? "-1" : "1";
+
+      const instance = getJBrowseInstance(props.hit.id);
+      if (!instance || !instance.db.jbrowse1) return null;
+      const { db, seqId } = instance;
+
+      const myFeatures = encodeURIComponent(JSON.stringify([
+        {
+          seq_id: seqId,
+          start: Math.min(hsp.sstart, hsp.send) - 1,
+          end: Math.max(hsp.sstart, hsp.send),
+          strand: strand,
+          name: `HSP#${hsp.number}`
+        }
+      ]));
+
+      const myTrack = encodeURIComponent(JSON.stringify([
+        {
+          label: "BLAST",
+          type: "JBrowse/View/Track/CanvasFeatures",
+          store: "url",
+          style: {
+            color: "aqua"
+          }
+        }
+      ]));
+
+      const jbrowse1Url =
+        `/jbrowse/?data=${db.data}` +
+        `&loc=${seqId}%3A${viewStart}..${viewEnd}` +
+        `&tracks=DNA%2CBLAST%2C${db.tracks.join("%2C")}` +
+        `&addFeatures=${myFeatures}` +
+        `&addTracks=${myTrack}`;
+      return (
+        <a target="_blank" rel="noopener noreferrer" href={jbrowse1Url} className="btn-link text-sm font-normal text-seqblue hover:text-seqorange ml-3 print:hidden">
+          <i className="fa fa-external-link" /> JBrowse1
+        </a>
+      );
+    }
+    return null;
+  }
+
+  const jbrowse2Link = () => {
+    if (
+      props.algorithm === "blastn"
+    ) {
+      const hitLen = Math.abs(hsp.send - hsp.sstart);
+      const viewStart = Math.min(hsp.sstart, hsp.send) - Math.floor(hitLen * 0.1);
+      const viewEnd = Math.max(hsp.sstart, hsp.send) + Math.floor(hitLen * 0.1);
+      const instance = getJBrowseInstance(props.hit.id);
+      if (!instance || !instance.db.jbrowse2) return null;
+      const { db, seqId } = instance;
+      const trackId = `blast_hit_${seqId}_${hsp.number}`;
+      const customTrack = [
+        {
+          type: "FeatureTrack",
+          trackId: trackId,
+          name: `BLAST Hit: ${seqId}`,
+          assemblyNames: [db.name],
+          adapter: {
+            type: "FromConfigAdapter",
+            features: [
+              {
+                uniqueId: `${trackId}_f1`,
+                refName: seqId,
+                start: Math.min(hsp.sstart, hsp.send) - 1,
+                end: Math.max(hsp.sstart, hsp.send),
+                type: "match",
+                name: `HSP#${hsp.number}`
+              },
+            ]
+          },
+          displays: [
+            {
+              type: "LinearBasicDisplay",
+              renderer: {
+                type: "SvgFeatureRenderer",
+                color1: "aqua"
+              }
+            }
+          ]
+        }
+      ];
+
+      const refTrack = `${db.name}-ReferenceSequenceTrack`;
+      const jbrowse2Url =
+        `/migd2/jbrowse2/?config=data%2Fcf_${db.name}.json` +
+        `&assembly=${db.name}` +
+        `&loc=${seqId}:${viewStart}..${viewEnd}` +
+        `&tracks=${trackId},${refTrack},${db.tracks.join(",")}` +
+        `&tracklist=true` +
+        `&sessionTracks=${encodeURIComponent(JSON.stringify(customTrack))}`;
+      return (
+        <a target="_blank" rel="noopener noreferrer" href={jbrowse2Url} className="btn-link text-sm font-normal text-seqblue hover:text-seqorange ml-3 print:hidden">
+          <i className="fa fa-external-link" /> JBrowse2
+        </a>
+      );
+    }
+    return null;
+  }
+
+  const jbrowse1 = jbrowseLink();
+  const jbrowse2 = jbrowse2Link();
+
   return (
     <div
       className="hsp pt-px pb-5 border-l-2 border-transparent pl-1 -ml-1"
@@ -350,6 +528,9 @@ export default function HSP(props) {
         {hspStats().map((s, i) => (
           <span key={i}>{s}</span>
         ))}
+        {jbrowse1}
+        {jbrowse1 && jbrowse2 ? " | " : null}
+        {jbrowse2}
       </p>
       {hspLines()}
     </div>
